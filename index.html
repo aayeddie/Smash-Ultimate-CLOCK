@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Super Smash Live Clock</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @font-face {
+      font-family: 'SuperSmash';
+      src: url('SuperSmash41.woff') format('woff');
+      font-weight: 900;
+      font-style: normal;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .center-wrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .background-cloud {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60vw;
+      height: 26vw;
+      background: radial-gradient(ellipse at center,
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(240, 240, 240, 0.6) 35%,
+        rgba(200, 200, 200, 0.3) 60%,
+        rgba(150, 150, 150, 0.08) 80%,
+        rgba(255, 255, 255, 0) 100%);
+      border-radius: 50% / 40%;
+      box-shadow: 0 0 3vw rgba(255, 255, 255, 0.3);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .stopwatch {
+      font-family: 'SuperSmash', sans-serif;
+      color: black;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 1;
+      margin-top: 2.2vw; /* Only change: move digits down slightly */
+    }
+
+    .digits {
+      display: flex;
+      gap: 0.01em;
+      font-size: 9.72vw;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .digit {
+      display: inline-block;
+      transition: transform 0.3s ease;
+      will-change: filter;
+    }
+
+    .ampm {
+      font-size: 2.2vw;
+      font-weight: 900;
+      transform: scale(0.7);
+      opacity: 0.85;
+      color: black;
+      margin-top: 0.3vw;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      .digits {
+        font-size: 11.5vw;
+      }
+      .ampm {
+        font-size: 5vw;
+        margin-top: 1vw;
+      }
+    }
+
+    @keyframes tickFlash {
+      0% {
+        filter: drop-shadow(0 0 6px #ff5500) drop-shadow(0 0 15px #ff9900);
+      }
+      50% {
+        filter: drop-shadow(0 0 12px #66ccff) drop-shadow(0 0 20px #99ddff);
+      }
+      100% {
+        filter: none;
+      }
+    }
+
+    .tick-flash {
+      animation: tickFlash 0.5s ease forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="center-wrapper">
+    <div class="background-cloud"></div>
+
+    <div class="stopwatch">
+      <div class="digits">
+        <span class="digit" id="h0" data-global="-1.8">0</span>
+        <span class="digit" id="h1" data-global="-1.1">0</span>
+        <span class="digit">:</span>
+        <span class="digit" id="m0" data-global="-0.5">0</span>
+        <span class="digit" id="m1" data-global="0.5">0</span>
+        <span class="digit">:</span>
+        <span class="digit" id="s0" data-global="1.1">0</span>
+        <span class="digit" id="s1" data-global="1.4">0</span>
+      </div>
+      <div class="ampm" id="ampm">AM</div>
+    </div>
+  </div>
+
+  <script>
+    function applyStretch() {
+      const digits = document.querySelectorAll('.digit');
+      digits.forEach(digit => {
+        const pos = parseFloat(digit.dataset.global);
+        if (isNaN(pos)) return;
+        const maxDistortion = 1.4;
+        const maxPosition = 1.8;
+        const intensity = Math.abs(pos) / maxPosition;
+        const stretchY = 1 + intensity * (maxDistortion - 1);
+        const compressX = 1 - intensity * 0.1;
+        digit.style.transform = `scale(${compressX}, ${stretchY})`;
+      });
+    }
+
+    window.onload = () => {
+      applyStretch();
+
+      const prev = {
+        h0: null, h1: null,
+        m0: null, m1: null,
+        s0: null, s1: null,
+        ampm: null
+      };
+
+      function flashDigit(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('tick-flash');
+        void el.offsetWidth;
+        el.classList.add('tick-flash');
+      }
+
+      setInterval(() => {
+        const now = new Date();
+        let hour = now.getHours();
+        const minute = now.getMinutes();
+        const second = now.getSeconds();
+        const ampm = hour >= 12 ? "PM" : "AM";
+
+        hour = hour % 12;
+        if (hour === 0) hour = 12;
+
+        const h = String(hour).padStart(2, '0');
+        const m = String(minute).padStart(2, '0');
+        const s = String(second).padStart(2, '0');
+
+        [['h0', h[0]], ['h1', h[1]],
+         ['m0', m[0]], ['m1', m[1]],
+         ['s0', s[0]], ['s1', s[1]]].forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          if (prev[id] !== val) {
+            el.textContent = val;
+            flashDigit(id);
+            prev[id] = val;
+          }
+        });
+
+        const ampmEl = document.getElementById('ampm');
+        if (prev.ampm !== ampm) {
+          ampmEl.textContent = ampm;
+          flashDigit('ampm');
+          prev.ampm = ampm;
+        }
+      }, 1000);
+    };
+  </script>
+</body>
+</html>
