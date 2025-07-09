@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Super Smash Live Clock</title>
+  <title>USA & Europe Clocks</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     @font-face {
@@ -18,13 +18,25 @@
       background: transparent;
       height: 100%;
       overflow: hidden;
+      font-family: 'SuperSmash', sans-serif;
     }
 
     .center-wrapper {
-      position: relative;
-      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      overflow: hidden;
+      gap: 5vw;
+    }
+
+    .clock-box {
+      position: relative;
+      width: 42vw;
+      height: 30vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .background-cloud {
@@ -32,8 +44,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 60vw;
-      height: 26vw;
+      width: 100%;
+      height: 100%;
       background: radial-gradient(ellipse at center,
         rgba(255, 255, 255, 0.9) 0%,
         rgba(240, 240, 240, 0.6) 35%,
@@ -42,28 +54,29 @@
         rgba(255, 255, 255, 0) 100%);
       border-radius: 50% / 40%;
       box-shadow: 0 0 3vw rgba(255, 255, 255, 0.3);
-      z-index: 0;
       pointer-events: none;
+      z-index: 0;
+    }
+
+    .clock-label {
+      font-size: 2.5vw;
+      font-weight: 900;
+      margin-bottom: 0.8vw;
+      z-index: 2;
+      color: black;
     }
 
     .stopwatch {
-      font-family: 'SuperSmash', sans-serif;
-      color: black;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      z-index: 1;
-      margin-top: 2.2vw; /* Only change: move digits down slightly */
+      z-index: 2;
     }
 
     .digits {
       display: flex;
       gap: 0.01em;
-      font-size: 9.72vw;
+      font-size: 9.5vw;
       font-weight: 900;
       line-height: 1;
     }
@@ -75,22 +88,36 @@
     }
 
     .ampm {
-      font-size: 2.2vw;
+      font-size: 2vw;
       font-weight: 900;
       transform: scale(0.7);
       opacity: 0.85;
       color: black;
-      margin-top: 0.3vw;
+      margin-top: 0.5vw;
       pointer-events: none;
     }
 
-    @media (max-width: 600px) {
-      .digits {
-        font-size: 11.5vw;
+    @media (max-width: 900px) {
+      .clock-box {
+        width: 90vw;
+        height: 30vh;
       }
-      .ampm {
+
+      .center-wrapper {
+        flex-direction: column;
+        gap: 4vh;
+      }
+
+      .digits {
+        font-size: 12vw;
+      }
+
+      .clock-label {
         font-size: 5vw;
-        margin-top: 1vw;
+      }
+
+      .ampm {
+        font-size: 4vw;
       }
     }
 
@@ -113,20 +140,41 @@
 </head>
 <body>
   <div class="center-wrapper">
-    <div class="background-cloud"></div>
-
-    <div class="stopwatch">
-      <div class="digits">
-        <span class="digit" id="h0" data-global="-1.8">0</span>
-        <span class="digit" id="h1" data-global="-1.1">0</span>
-        <span class="digit">:</span>
-        <span class="digit" id="m0" data-global="-0.5">0</span>
-        <span class="digit" id="m1" data-global="0.5">0</span>
-        <span class="digit">:</span>
-        <span class="digit" id="s0" data-global="1.1">0</span>
-        <span class="digit" id="s1" data-global="1.4">0</span>
+    <!-- USA Clock -->
+    <div class="clock-box">
+      <div class="background-cloud"></div>
+      <div class="clock-label">USA</div>
+      <div class="stopwatch">
+        <div class="digits">
+          <span class="digit" id="uh0" data-global="-1.8">0</span>
+          <span class="digit" id="uh1" data-global="-1.1">0</span>
+          <span class="digit">:</span>
+          <span class="digit" id="um0" data-global="-0.5">0</span>
+          <span class="digit" id="um1" data-global="0.5">0</span>
+          <span class="digit">:</span>
+          <span class="digit" id="us0" data-global="1.1">0</span>
+          <span class="digit" id="us1" data-global="1.4">0</span>
+        </div>
+        <div class="ampm" id="uampm">AM</div>
       </div>
-      <div class="ampm" id="ampm">AM</div>
+    </div>
+
+    <!-- Europe Clock -->
+    <div class="clock-box">
+      <div class="background-cloud"></div>
+      <div class="clock-label">Europe</div>
+      <div class="stopwatch">
+        <div class="digits">
+          <span class="digit" id="eh0" data-global="-1.8">0</span>
+          <span class="digit" id="eh1" data-global="-1.1">0</span>
+          <span class="digit">:</span>
+          <span class="digit" id="em0" data-global="-0.5">0</span>
+          <span class="digit" id="em1" data-global="0.5">0</span>
+          <span class="digit">:</span>
+          <span class="digit" id="es0" data-global="1.1">0</span>
+          <span class="digit" id="es1" data-global="1.4">0</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -145,55 +193,68 @@
       });
     }
 
-    window.onload = () => {
-      applyStretch();
+    function flashDigit(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('tick-flash');
+      void el.offsetWidth;
+      el.classList.add('tick-flash');
+    }
 
-      const prev = {
-        h0: null, h1: null,
-        m0: null, m1: null,
-        s0: null, s1: null,
-        ampm: null
-      };
+    function updateClocks() {
+      const now = new Date();
 
-      function flashDigit(id) {
-        const el = document.getElementById(id);
-        el.classList.remove('tick-flash');
-        void el.offsetWidth;
-        el.classList.add('tick-flash');
+      // USA Clock (Local 12-hour)
+      let h = now.getHours();
+      const m = now.getMinutes();
+      const s = now.getSeconds();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      if (h === 0) h = 12;
+
+      updateDigit('uh0', String(h).padStart(2, '0')[0]);
+      updateDigit('uh1', String(h).padStart(2, '0')[1]);
+      updateDigit('um0', String(m).padStart(2, '0')[0]);
+      updateDigit('um1', String(m).padStart(2, '0')[1]);
+      updateDigit('us0', String(s).padStart(2, '0')[0]);
+      updateDigit('us1', String(s).padStart(2, '0')[1]);
+
+      const ampmEl = document.getElementById('uampm');
+      if (ampmEl.textContent !== ampm) {
+        ampmEl.textContent = ampm;
+        flashDigit('uampm');
       }
 
-      setInterval(() => {
-        const now = new Date();
-        let hour = now.getHours();
-        const minute = now.getMinutes();
-        const second = now.getSeconds();
-        const ampm = hour >= 12 ? "PM" : "AM";
+      // Europe Clock (Berlin, 24-hour)
+      const euNow = new Date().toLocaleTimeString('en-GB', {
+        timeZone: 'Europe/Berlin',
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      const [eh, em, es] = euNow.split(':');
 
-        hour = hour % 12;
-        if (hour === 0) hour = 12;
+      updateDigit('eh0', eh[0]);
+      updateDigit('eh1', eh[1]);
+      updateDigit('em0', em[0]);
+      updateDigit('em1', em[1]);
+      updateDigit('es0', es[0]);
+      updateDigit('es1', es[1]);
+    }
 
-        const h = String(hour).padStart(2, '0');
-        const m = String(minute).padStart(2, '0');
-        const s = String(second).padStart(2, '0');
+    function updateDigit(id, val) {
+      const el = document.getElementById(id);
+      if (el.textContent !== val) {
+        el.textContent = val;
+        flashDigit(id);
+      }
+    }
 
-        [['h0', h[0]], ['h1', h[1]],
-         ['m0', m[0]], ['m1', m[1]],
-         ['s0', s[0]], ['s1', s[1]]].forEach(([id, val]) => {
-          const el = document.getElementById(id);
-          if (prev[id] !== val) {
-            el.textContent = val;
-            flashDigit(id);
-            prev[id] = val;
-          }
-        });
-
-        const ampmEl = document.getElementById('ampm');
-        if (prev.ampm !== ampm) {
-          ampmEl.textContent = ampm;
-          flashDigit('ampm');
-          prev.ampm = ampm;
-        }
-      }, 1000);
+    window.onload = () => {
+      applyStretch();
+      updateClocks();
+      setInterval(updateClocks, 1000);
     };
   </script>
 </body>
